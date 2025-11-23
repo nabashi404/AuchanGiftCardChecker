@@ -83,30 +83,6 @@ namespace AuchanGiftCardChecker
 
             var webProxy = new WebProxy($"http://{proxySplit[0]}:{proxySplit[1]}", true, null, proxySplit.Length == 4 ? new NetworkCredential(proxySplit[2], proxySplit[3]) : null);
 
-            string[] GetUserAgents()
-            {
-                if (File.Exists("user-agents.json"))
-                {
-                    var fileContent = File.ReadAllText("user-agents.json");
-
-                    var json = JsonSerializer.Deserialize<JsonElement>(fileContent);
-
-                    var userAgents = json.EnumerateArray().Select(j => j.GetProperty("USER_AGENT").GetString()).ToArray();
-
-                    Console.WriteLine($"{userAgents.Length} user-agents loaded");
-
-                    return userAgents;
-                }
-
-                Console.WriteLine("'user-agents.json' file does not exist.");
-
-                Environment.Exit(0);
-
-                return null;
-            }
-
-            var userAgents = GetUserAgents();
-
             async Task checkProcess(string card, CheckResult checkResult, CancellationToken token)
             {
                 try
@@ -125,8 +101,6 @@ namespace AuchanGiftCardChecker
                     {
                         Content = new StringContent($"{{\"cardNumber\":\"{card}\"}}", Encoding.UTF8, "application/json")
                     };
-
-                    requestMessage.Headers.UserAgent.TryParseAdd(userAgents[random.Next(userAgents.Length)]);
 
                     requestMessage.Headers.TryAddWithoutValidation("Accept-Language", "fr");
                     requestMessage.Headers.TryAddWithoutValidation("Origin", "https://carte-cadeau.auchan.fr");
